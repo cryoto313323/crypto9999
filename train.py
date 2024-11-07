@@ -34,7 +34,7 @@ import pandas as pd
 url = "https://api.binance.com/api/v3/klines"
 
 symbols  = [
-  "BTCUSDT", "ETHUSDT", "BNBUSDT", "XRPUSDT", "DOGEUSDT", "ADAUSDT"
+  "BTCUSDT"
 ];
 # symbols  = [
 #   "BTCUSDT", "ETHUSDT", "BNBUSDT", "XRPUSDT", "DOGEUSDT", "ADAUSDT", 
