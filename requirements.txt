@@ -23,3 +23,4 @@ xgboost
 python-telegram-bot
 ruamel.yaml
 numba
+flask
