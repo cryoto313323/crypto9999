@@ -31,9 +31,10 @@ import pandas as pd
 from flask import Flask
 from threading import Thread
 
+app = Flask(__name__)
+
 logging.basicConfig(level=logging.INFO)
 
-app = Flask(__name__)
 
 # إعداد تفاصيل API
 url = "https://api.binance.com/api/v3/klines"
@@ -350,7 +351,7 @@ def main(cfg: DictConfig) -> None:
     application.run_polling()
 
 if __name__ == '__main__':
-      flask_thread = Thread(target=app.run, kwargs={'host': '0.0.0.0', 'port': 8080})
+    flask_thread = Thread(target=app.run, kwargs={'host': '0.0.0.0', 'port': 8080})
     flask_thread.start()
 
     # تشغيل Telegram bot
