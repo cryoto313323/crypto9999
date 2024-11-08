@@ -130,7 +130,7 @@ def add_future_dates(filename, symbol):
             writer.writerow([formatted_date, symbol,'1','1','1','1','1'])
 
 
-data_folder = 'crypto9999/data'
+data_folder = '\data'
 
 if not os.path.exists(data_folder):
     os.makedirs(data_folder)
