@@ -109,7 +109,7 @@ if not os.path.exists(data_folder):
 
 data_filename = os.path.join(data_folder,'data1.csv')
 
-async def fetch_and_save_data(symbol, start_date, end_date):
+ def fetch_and_save_data(symbol, start_date, end_date):
     url = "https://api.binance.com/api/v3/klines"  # Add API URL here
     params = {
         'symbol': symbol,
@@ -133,7 +133,6 @@ async def fetch_and_save_data(symbol, start_date, end_date):
     with open(data_filename, 'a', newline='') as file:
         writer = csv.writer(file)
         for entry in data:
-            await update.message.reply_text(entry)
             timestamp = datetime.fromtimestamp(entry[0]/ 1000, tz=pytz.utc).strftime('%Y-%m-%d 00:00:00+00:00')
             writer.writerow([
             timestamp, symbol, entry[1], entry[2], entry[3], entry[4], entry[5]
@@ -274,7 +273,7 @@ logging.basicConfig(level=logging.INFO)
 
 TOKEN = '7247002552:AAFfzqoRJ95XmwOLDB6Pn2etQTSCU3zT4Pc'
 
-AUTHORIZED_USERS = [895650332,1796556765]#,1796556765
+AUTHORIZED_USERS = [895650332,1796556765,991558864]#,1796556765
 
 async def data(update: Update, context: ContextTypes.DEFAULT_TYPE, cfg: DictConfig) -> None:
     # الحصول على النتيجة الكبيرة
