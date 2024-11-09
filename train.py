@@ -15,6 +15,15 @@ from path_definition import HYDRA_PATH
 
 from utils.reporter import Reporter
 from data_loader.creator import create_dataset, preprocess
+from telegram import Update, KeyboardButton, ReplyKeyboardMarkup
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
+import logging
+from omegaconf import DictConfig
+from functools import partial
+from flask import Flask
+from threading import Thread
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.triggers.cron import CronTrigger
 
 
 
@@ -124,8 +133,8 @@ def fetch_and_save_data(symbol, start_date, end_date):
     with open(data_filename, 'a', newline='') as file:
         writer = csv.writer(file)
         for entry in data:
-            print(entry)
-            timestamp = datetime.fromtimestamp(int(entry[0]) / 1000, tz=pytz.utc).strftime('%Y-%m-%d 00:00:00+00:00')
+            await update.message.reply_text(entry)
+            timestamp = datetime.fromtimestamp(entry[0]/ 1000, tz=pytz.utc).strftime('%Y-%m-%d 00:00:00+00:00')
             writer.writerow([
             timestamp, symbol, entry[1], entry[2], entry[3], entry[4], entry[5]
             ])
@@ -258,16 +267,6 @@ def train(cfg: DictConfig):
     return title  # Return the title or any other relevant data
 
 
-from telegram import Update, KeyboardButton, ReplyKeyboardMarkup
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
-import logging
-import hydra
-from omegaconf import DictConfig
-from functools import partial
-from flask import Flask
-from threading import Thread
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from apscheduler.triggers.cron import CronTrigger
 
 app = Flask(__name__)
 
