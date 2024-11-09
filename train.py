@@ -292,7 +292,7 @@ from threading import Thread
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 
-app = Flask(_name_)
+app = Flask(__name__)
 
 logging.basicConfig(level=logging.INFO)
 
@@ -368,7 +368,7 @@ def main(cfg: DictConfig) -> None:
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, partial(handle_prediction, cfg=cfg)))  # تمرير cfg هنا
     application.run_polling()
 
-if _name_ == '_main_':
+if __name__ == '__main__':
     flask_thread = Thread(target=app.run, kwargs={'host': '0.0.0.0', 'port': 8080})
     flask_thread.start()
     main()
