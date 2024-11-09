@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 # إعداد تفاصيل API
 url = "https://api.binance.com/api/v3/klines"
 
-symbols  = [ "DOTUSDT", "ALGOUSDT", "FILUSDT"];
+symbols  = [ "ALGOUSDT"];
 
 
 current_date = datetime.now()
