@@ -19,6 +19,7 @@ seaborn
 statsmodels
 tensorflow~=2.12.0
 tqdm
+numba
 xgboost~=1.7.5
 python-telegram-bot
 ruamel.yaml
