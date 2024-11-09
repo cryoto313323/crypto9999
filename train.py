@@ -123,7 +123,7 @@ def fetch_and_save_data(symbol, start_date, end_date):
     with open(data_filename, 'a', newline='') as file:
         writer = csv.writer(file)
         for entry in data:
-            timestamp = datetime.fromtimestamp(entry[0] / 1000, tz=pytz.utc).strftime('%Y-%m-%d 00:00:00+00:00')
+            timestamp = datetime.fromtimestamp(int(entry[0]) / 1000, tz=pytz.utc).strftime('%Y-%m-%d 00:00:00+00:00')
             writer.writerow([
                 timestamp, symbol, entry[1], entry[2], entry[3], entry[4], entry[5]
             ])
