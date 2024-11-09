@@ -26,19 +26,12 @@ import csv
 import os
 import pytz
 from datetime import datetime, timedelta
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(_name_)
 import pandas as pd
-from flask import Flask
-from threading import Thread
-
-app = Flask(__name__)
-
-logging.basicConfig(level=logging.INFO)
 
 
 # إعداد تفاصيل API
 url = "https://api.binance.com/api/v3/klines"
-
 
 symbols  = [
   "BTCUSDT", "ETHUSDT", "BNBUSDT", "XRPUSDT", "DOGEUSDT", "ADAUSDT", 
@@ -69,11 +62,6 @@ symbols  = [
 ];
 
 
-
-# إعداد مجلد لحفظ البيانات
-
-
-# إعداد التاريخ الحالي وحساب التواريخ الديناميكية
 current_date = datetime.now()
 
 data = {
@@ -130,7 +118,7 @@ def add_future_dates(filename, symbol):
             writer.writerow([formatted_date, symbol,'1','1','1','1','1'])
 
 
-data_folder = 'data'
+data_folder = '/data'
 
 if not os.path.exists(data_folder):
     os.makedirs(data_folder)
@@ -174,12 +162,10 @@ def train(cfg: DictConfig):
     period = timedelta(days=90)
 
     title = ''
-    increase_threshold = 0.03
+    increase_threshold = -0.03
     saved_percentage=0
   
     for symbol in symbols:
-     
-        
         # //
         if os.path.exists(data_filename):
             os.remove(data_filename)  # Delete the file if it exists
@@ -282,79 +268,107 @@ def train(cfg: DictConfig):
         title += f'نسبة الزيادة المتوقعة: {round(saved_percentage, 1)}%\n'
         title += f'اعلى سعر متوقع لليوم⬆️:\n {predicted_high_formated}\n'
         title += f'اقل سعر متوقع لليوم⬇️:\n {predicted_low_formated}\n'
-        title += f'سعر الإغلاق المتوقع لليوم:\n {predicted_mean_formated}\n'
-        title += '-------------------------------------------------------\n'
+        title += f'سعر الإغلاق المتوقع لليوم:\n {predicted_mean}\n'
+        title += '---\n'
         print('..............................d')
         print(yesterday_close)
         reporter.print_pretty_metrics(logger)
         reporter.save_metrics()
 
-    title += 'لا تجعل التنبؤات محور تداولك. ركز على التحليل العميق وإدارة المخاطر، واستند إلى البيانات والحقائق لاتخاذ قرارات مستنيرة.\n'
+    # title += 'لا تجعل التنبؤات محور تداولك. ركز على التحليل العميق وإدارة المخاطر، واستند إلى البيانات والحقائق لاتخاذ قرارات مستنيرة.\n'
     print(title)
 
     return title  # Return the title or any other relevant data
 
 
-# @hydra.main(config_path=HYDRA_PATH, config_name="train")
-# def main(cfg: DictConfig):
-#     result = train(cfg)  # استدعاء الدالة وإرجاع النتيجة
-#     print(result)
-
-# ////
 from telegram import Update, KeyboardButton, ReplyKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
-
-TOKEN = '7247002552:AAFfzqoRJ95XmwOLDB6Pn2etQTSCU3zT4Pc'
-
-# دالة التوقع (data)
 import logging
-from telegram import Update, KeyboardButton, ReplyKeyboardMarkup
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 import hydra
 from omegaconf import DictConfig
 from functools import partial
+from flask import Flask
+from threading import Thread
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.triggers.cron import CronTrigger
 
-# إعداد تسجيل الدخول
+app = Flask(_name_)
+
 logging.basicConfig(level=logging.INFO)
 
-TOKEN = "7247002552:AAFfzqoRJ95XmwOLDB6Pn2etQTSCU3zT4Pc"  # استبدل بـ توكن البوت الخاص بك
-# HYDRA_PATH = "C:\Users\moham\Downloads\crypto\crypto\configs"  # مسار ملفات التكوين
+TOKEN = '7247002552:AAFfzqoRJ95XmwOLDB6Pn2etQTSCU3zT4Pc'
+
+AUTHORIZED_USERS = [895650332,1796556765]#,1796556765
 
 async def data(update: Update, context: ContextTypes.DEFAULT_TYPE, cfg: DictConfig) -> None:
-    # تنفيذ العمليات عند الضغط على "توقع"
-    result = train(cfg)  # استدعاء دالة train باستخدام cfg
-    await update.message.reply_text(result)
+    # الحصول على النتيجة الكبيرة
+    result = train(cfg)
 
-# دالة البدء، تقوم بعرض زر "توقع" كزر دائم
+    # تقسيم النص عند الفاصل ---
+    parts = result.split('---')
+
+    # إرسال كل جزء من الأجزاء بشكل منفصل
+    for part in parts:
+        # التأكد من أن الجزء ليس فارغًا قبل إرساله
+        if part.strip():  # تأكد من أن الجزء ليس فقط مسافات فارغة
+            await update.message.reply_text(part.strip())  # إرفاق أي مسافات غير ضرورية
+
+
+async def check_authorized_user(update: Update) -> bool:
+    user_id = update.message.from_user.id
+    if user_id in AUTHORIZED_USERS:
+        return True
+    return False
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    # إعداد زر "توقع" كزر دائم
+    if not await check_authorized_user(update):
+        await update.message.reply_text('ليس لديك صلاحية للوصول إلى هذا البوت.')
+        return
+    
     keyboard = [[KeyboardButton("توقع")]]
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=False)
-    
     await update.message.reply_text('مرحبًا! اضغط على الزر لتوقع النتيجة.', reply_markup=reply_markup)
 
-# دالة لمعالجة الرسائل التي تحتوي على نص "توقع"
 async def handle_prediction(update: Update, context: ContextTypes.DEFAULT_TYPE, cfg: DictConfig) -> None:
+    if not await check_authorized_user(update):
+        await update.message.reply_text('ليس لديك صلاحية للوصول إلى هذا البوت.')
+        return
+    
     if update.message.text == "توقع":
-        await data(update, context, cfg)  # استدعاء دالة التوقع مع تمرير cfg
+        await data(update, context, cfg)
+
+async def daily_prediction(cfg: DictConfig, application: Application) -> None:
+    for user_id in AUTHORIZED_USERS:
+        try:
+            # الحصول على النتيجة من دالة train
+            result = train(cfg)
+
+            # تقسيم الرسالة بناءً على الفاصل ---
+            parts = result.split('---')
+
+            # إرسال كل جزء من الأجزاء بشكل منفصل
+            for part in parts:
+                # التأكد من أن الجزء ليس فارغًا قبل إرساله
+                if part.strip():  # التأكد من عدم إرسال جزء فارغ
+                    await application.bot.send_message(user_id, part.strip())
+
+        except Exception as e:
+            print(f"فشل في إرسال التوقع إلى {user_id}: {e}")
+
+
 
 @hydra.main(config_path=HYDRA_PATH, config_name="train")
 def main(cfg: DictConfig) -> None:
-    # إنشاء التطبيق
     application = Application.builder().token(TOKEN).build()
-    
-    # إضافة الأوامر والمعالجات
+    scheduler = AsyncIOScheduler()
+    trigger = CronTrigger(hour=7, minute=0, second=0, timezone="Asia/Baghdad")
+    scheduler.add_job(daily_prediction, trigger, args=[cfg, application])
+    scheduler.start()
     application.add_handler(CommandHandler('start', start))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, partial(handle_prediction, cfg=cfg)))  # تمرير cfg هنا
-    
-    # بدء تشغيل البوت
     application.run_polling()
 
-if __name__ == '__main__':
+if _name_ == '_main_':
     flask_thread = Thread(target=app.run, kwargs={'host': '0.0.0.0', 'port': 8080})
     flask_thread.start()
-
-    # تشغيل Telegram bot
     main()
-
-
