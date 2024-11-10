@@ -111,7 +111,7 @@ data_filename = os.path.join(data_folder,'data1.csv')
 
 def fetch_and_save_data(symbol, start_date, end_date):
      url = f'https://api.coingecko.com/api/v3/coins/{symbol}/market_chart/range'
-    params = {
+     params = {
         'vs_currency': 'usd',
         'from': int(start_date.timestamp()),  # startDate as Unix timestamp
         'to': int(end_date.timestamp())  # endDate as Unix timestamp
