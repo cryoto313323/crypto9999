@@ -110,38 +110,45 @@ if not os.path.exists(data_folder):
 data_filename = os.path.join(data_folder,'data1.csv')
 
 def fetch_and_save_data(symbol, start_date, end_date):
-    url = "https://api.binance.com/api/v3/klines"  # Add API URL here
+    url = "https://api.binance.com/api/v3/klines"
     params = {
         'symbol': symbol,
         'interval': '1d',
-        'startTime': int(start_date.timestamp() * 1000),  # startDate converted to timestamp in ms
-        'endTime': int(end_date.timestamp() * 1000)  # endDate converted to timestamp in ms
+        'startTime': int(start_date.timestamp() * 1000),
+        'endTime': int(end_date.timestamp() * 1000)
     }
-    print(start_date.timestamp())
-    print(end_date.timestamp()* 1000)
-    response = requests.get(url, params=params)
-    data = response.json()
-    print(data)
-    if isinstance(data, dict) and 'code' in data and data['code'] == -1121: 
-        return False
-    
-    # Check if data is available
-    if not data:
-        print(f"No data available for {symbol} from {start_date.date()}")
-        return False  # No data for this symbol
 
-    # Write data to the file
-    with open(data_filename, 'a', newline='') as file:
-        writer = csv.writer(file)
-        for entry in data:
-            print(f"entry[0] = {entry[0]}, type(entry[0]) = {type(entry[0])}")
-            timestamp = datetime.fromtimestamp(entry[0]/ 1000, tz=pytz.utc).strftime('%Y-%m-%d 00:00:00+00:00')
-            writer.writerow([
-            timestamp, symbol, entry[1], entry[2], entry[3], entry[4], entry[5]
-            ])
-            
-    
-    return True  # Data fetched successfully
+    try:
+        response = requests.get(url, params=params)
+        data = response.json()
+
+        # التحقق من وجود أخطاء في الرد
+        if isinstance(data, dict) and 'code' in data:
+            print(f"Error fetching data: {data['msg']}")
+            return False
+
+        # التحقق من وجود بيانات
+        if not data:
+            print(f"No data available for {symbol} from {start_date.date()} to {end_date.date()}")
+            return False
+
+        # كتابة البيانات إلى ملف CSV
+        with open(data_filename, 'a', newline='') as file:
+            writer = csv.writer(file)
+            for entry in data:
+                timestamp = datetime.fromtimestamp(entry[0] / 1000, tz=pytz.utc).strftime('%Y-%m-%d %H:%M:%S%z')
+                writer.writerow([
+                    timestamp, symbol, entry[1], entry[2], entry[3], entry[4], entry[5]
+                ])
+        print(f"Data for {symbol} from {start_date.date()} to {end_date.date()} saved successfully.")
+        return True
+
+    except requests.RequestException as e:
+        print(f"Request error: {e}")
+        return False
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        return False
 
 def train(cfg: DictConfig):
     start_date = datetime(2020, 1, 1, tzinfo=pytz.utc)
