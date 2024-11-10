@@ -110,12 +110,15 @@ if not os.path.exists(data_folder):
 data_filename = os.path.join(data_folder,'data1.csv')
 
 def fetch_and_save_data(symbol, start_date, end_date):
-    url = f'https://api.coingecko.com/api/v3/coins/{symbol}/market_chart/range'
+    url = "https://api.binance.com/api/v3/klines"  # Add API URL here
     params = {
-        'vs_currency': 'usd',
-        'from': int(start_date.timestamp()),  # startDate as Unix timestamp
-        'to': int(end_date.timestamp())  # endDate as Unix timestamp
+        'symbol': symbol,
+        'interval': '1d',
+        'startTime': int(start_date.timestamp() * 1000),  # startDate converted to timestamp in ms
+        'endTime': int(end_date.timestamp() * 1000)  # endDate converted to timestamp in ms
     }
+    print(start_date.timestamp())
+    print(end_date.timestamp()* 1000)
     response = requests.get(url, params=params)
     data = response.json()
     print(data)
