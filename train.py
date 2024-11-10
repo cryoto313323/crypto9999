@@ -110,7 +110,7 @@ if not os.path.exists(data_folder):
 data_filename = os.path.join(data_folder,'data1.csv')
 
 def fetch_and_save_data(symbol, start_date, end_date):
-    url = "https://crypto1212.great-site.net/crypto.php"  # Add API URL here
+    url = "http://crypto1212.great-site.net/crypto.php"  # Add API URL here
     params = {
         'symbol': symbol,
         'interval': '1d',
