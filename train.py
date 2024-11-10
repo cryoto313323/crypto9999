@@ -131,8 +131,8 @@ def train(cfg: DictConfig):
     return title  # Return the title or any other relevant data
 
 @app.route('/start', methods=['GET'])
-def start_flask():
-    return "Flask is running"
+def start():
+    return "مرحباً بالعالم!"
 
 # تشغيل التطبيق Flask في Thread
 flask_thread = Thread(target=app.run, kwargs={'host': '0.0.0.0', 'port': 8080})
