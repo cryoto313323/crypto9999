@@ -110,17 +110,17 @@ if not os.path.exists(data_folder):
 data_filename = os.path.join(data_folder,'data1.csv')
 
 def fetch_and_save_data(symbol, start_date, end_date):
-     url = f'https://api.coingecko.com/api/v3/coins/{symbol}/market_chart/range'
-     params = {
+    url = f'https://api.coingecko.com/api/v3/coins/{symbol}/market_chart/range'
+    params = {
         'vs_currency': 'usd',
         'from': int(start_date.timestamp()),  # startDate as Unix timestamp
         'to': int(end_date.timestamp())  # endDate as Unix timestamp
-     }
-     response = requests.get(url, params=params)
-     data = response.json()
-     print(data)
-     if isinstance(data, dict) and 'code' in data and data['code'] == -1121: 
-         return False
+    }
+    response = requests.get(url, params=params)
+    data = response.json()
+    print(data)
+    if isinstance(data, dict) and 'code' in data and data['code'] == -1121: 
+        return False
     
     # Check if data is available
     if not data:
