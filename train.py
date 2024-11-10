@@ -115,13 +115,12 @@ def fetch_and_save_data(symbol, start_date, end_date):
         'vs_currency': 'usd',
         'from': int(start_date.timestamp()),  # startDate as Unix timestamp
         'to': int(end_date.timestamp())  # endDate as Unix timestamp
-    }
-    
-    response = requests.get(url, params=params)
-    data = response.json()
-    print(data)
-    if isinstance(data, dict) and 'code' in data and data['code'] == -1121: 
-        return False
+     }
+     response = requests.get(url, params=params)
+     data = response.json()
+     print(data)
+     if isinstance(data, dict) and 'code' in data and data['code'] == -1121: 
+         return False
     
     # Check if data is available
     if not data:
@@ -347,3 +346,5 @@ if __name__ == '__main__':
     flask_thread = Thread(target=app.run, kwargs={'host': '0.0.0.0', 'port': 8080})
     flask_thread.start()
     main()
+
+
